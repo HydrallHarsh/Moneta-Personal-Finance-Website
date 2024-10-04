@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Personal Finance Tracker{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+    .month-content {
+        display: none;
+    }
+    .month-header {
+        cursor: pointer;
+    }
+    .month-header::after {
+        content: '\25BC';
+        float: right;
+        transition: transform 0.3s ease;
+    }
+    .month-header.active::after {
+        transform: rotate(180deg);
+    }
+    .hidden-month {
+        display: none;
+    }
+    .hidden-month {
+        max-height : 500px;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+    }
+    
+    
+    
+</style>
+<div class="fixed inset-0 pointer-events-none"></div>
+<div class="fixed w-[400px] h-[400px] rounded-full pointer-events-none blur-[10px] bg-gradient-radial from-[rgba(255,255,255,0.8)] via-[rgba(255,255,255,0.6)] to-transparent transform-gpu -translate-x-1/2 -translate-y-1/2"></div>
+<div class="fixed inset-0 bg-dot-pattern pointer-events-none"></div>
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Personal Finance Tracker</h1>
+    {% if messages %}
+    <div class="mb-8 space-y-4">
+        {% for message in messages %}
+            <div class="rounded-md p-4 {% if message.tags == 'success' %}bg-green-800 text-green-200{% elif message.tags == 'error' %}bg-red-800 text-red-200{% elif message.tags == 'warning' %}bg-yellow-800 text-yellow-200{% else %}bg-blue-800 text-blue-200{% endif %} shadow-md">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'success' %}
+                            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        {% elif message.tags == 'error' %}
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        {% elif message.tags == 'warning' %}
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        {% else %}
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+        
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gray-800 rounded-lg p-6 md:col-span-2">
+            <h2 class="text-xl font-semibold mb-2 text-gray-400">{{curr_year}} Net Savings</h2>
+            <button class = "text-l font-semibold mb-2 text-gray-500" onclick="resetZoom()">Reset Zoom</button>
+            <canvas id="netSavingsChart" class="w-full h-64"></canvas>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 flex flex-col justify-between">
+            <h2 class="text-lg font-semibold mb-2 text-gray-400">Income Breakdown for {{ current_month }}</h2>
+            <div class="flex items-center justify-center flex-1">
+                <canvas id="incomeChart" class="max-w-full max-h-full"></canvas>
+            </div>
+            <p class="text-2xl font-bold text-center mt-2">${{ current_month_income_sum|floatformat:2 }}</p>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 flex flex-col justify-between md:col-span-1">
+            <h2 class="text-lg font-semibold mb-2 text-gray-400">Expenses Breakdown for {{ current_month }}</h2>
+            <div class="flex items-center justify-center flex-1">
+                <canvas id="expensesChart" class="max-w-full max-h-full"></canvas>
+            </div>
+            <p class="text-2xl font-bold text-center mt-2">${{ current_month_expense_sum|floatformat:2 }}</p>
+        </div>
+
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+        
+        {% for data in monthly_data %}
+        <div class="bg-gray-800 rounded-lg p-4 flex flex-col items-center justify-center">
+            <div class="flex items-center justify-between w-full mb-2">
+                <h2 class="text-lg font-semibold text-gray-400">{{ data.month }}</h2>
+                <span class="h-3 w-3 rounded-full {% if data.net > 0 %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+            </div>
+            <p class="text-sm text-gray-400 mb-1">Income: ${{ data.income|floatformat:2 }}</p>
+            <p class="text-sm text-gray-400 mb-1">Expenses: ${{ data.expense|floatformat:2 }}</p>
+            <p class="text-sm font-bold text-gray-400">Net: ${{ data.net|floatformat:2 }}</p>
+        </div>
+        {% endfor %}
+
+    </div>
+    <div class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4 text-white">Detailed Transactions</h2>
+        {% comment %} <div class="flex mb-4 space-x-2">
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Q1</button>
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Q2</button>
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Q3</button>
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Q4</button>
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">All Months</button>
+        </div> {% endcomment %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Income Card -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-gray-300">Income</h3>
+                <div id="incomeContainer">
+                    {% for data in monthly_data %}
+                    <div class="mb-4 {% if forloop.counter > 3 %}hidden-month{% endif %}">
+                        <div class="month-header bg-gray-700 p-2 rounded-t-lg text-white">
+                            {{ data.month }}
+                        </div>
+                        <div class="month-content bg-gray-700 p-4 rounded-b-lg">
+                            {% if data.monthly_income_sources %}
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-gray-400">
+                                        <th class="pb-2">Source</th>
+                                        <th class="pb-2">Amount</th>
+                                        <th class="pb-2">Tags</th>
+                                        <th class="pb-2">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for income in data.monthly_income_sources %}
+                                    <tr class="border-t border-gray-600">
+                                        <td class="py-2 text-gray-300">{{ income.source }}</td>
+                                        <td class="py-2 text-gray-300">${{ income.amount|floatformat:2 }}</td>
+                                        <td class="py-2">
+                                            <span class="bg-blue-500 text-xs px-2 py-1 rounded">{{ income.description }}</span>
+                                        </td>
+                                        <td class="py-2 text-gray-300">{{ income.date|date:"F j, Y" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-gray-300">No income entries yet for {{ data.month }}.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button id="expandIncomeButton" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">Expand Income</button>
+                <button id="shrinkIncomeButton" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors hidden">Shrink Income</button>
+            </div>
+            
+            <!-- Expenses Card -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-gray-300">Expenses</h3>
+                <div id="expensesContainer">
+                    {% for data in monthly_data %}
+                    <div class="mb-4 {% if forloop.counter > 3 %}hidden-month{% endif %}">
+                        <div class="month-header bg-gray-700 p-2 rounded-t-lg text-white">
+                            {{ data.month }}
+                        </div>
+                        
+                        <div class="month-content bg-gray-700 p-4 rounded-b-lg">
+                            {% if data.expenses %}
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-gray-400">
+                                        <th class="pb-2">Source</th>
+                                        <th class="pb-2">Amount</th>
+                                        <th class="pb-2">Tags</th>
+                                        <th class="pb-2">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for expense in data.expenses %}
+                                    <tr class="border-t border-gray-600">
+                                        <td class="py-2 text-gray-300">{{ expense.category }}</td>
+                                        <td class="py-2 text-gray-300">${{ expense.amount|floatformat:2 }}</td>
+                                        <td class="py-2">
+                                            <span class="bg-red-500 text-xs px-2 py-1 rounded">{{ expense.description }}</span>
+                                        </td>
+                                        <td class="py-2 text-gray-300">{{ expense.date|date:"F j, Y" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-gray-300">No expense entries yet for {{ data.month }}.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button id="expandExpensesButton" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">Expand Expenses</button>
+                <button id="shrinkExpensesButton" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors hidden">Shrink Expenses</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+
+<script>
+    function resetZoom() {
+        netSavingsChart.resetZoom();
+    }
+</script>
+<script>
+    // Pass Django context variables directly to JavaScript
+    const incomeSources = {{ income_sources|safe }};
+    const incomeAmounts = {{ income_source_amounts|safe }};
+    const expenseCategories = {{ expense_sources|safe }};
+    const expenseAmounts = {{ expense_source_amounts|safe }};
+    const months = {{ months|safe }};
+    const netSavings = {{ net_savings|safe }};
+    const capitalize = (str) => {
+        return str.replace(/\b\w/g, (char) => char.toUpperCase());
+    };
+    
+    // Apply the capitalization to each income source
+    const capitalizedIncomeSources = incomeSources.map(source => capitalize(source));
+    const capitalizedExpenseCategories = expenseCategories.map(category => capitalize(category));
+    console.log(capitalizedIncomeSources);
+    // Income Breakdown Chart
+    
+
+        // Net Savings Chart with Zoom and Pan functionality
+        // Get the current month (1-based, January = 1, December = 12)
+    const currentMonth = new Date().getMonth() + 1;
+
+    // Calculate the min and max for the zoom
+    const zoomMin = Math.max(currentMonth - 3, 0);  // Two months before the current month, but not less than 0
+    const zoomMax = Math.min(currentMonth + 3, 12); // Two months after the current month, but not more than 11 (December)
+
+    // Net Savings Chart with Default Zoom and Zoom/Pan functionality
+    const netSavingsCtx = document.getElementById('netSavingsChart').getContext('2d');
+
+    const netSavingsChart = new Chart(netSavingsCtx, {
+        type: 'line',
+        data: {
+            labels: months,  // Months for the x-axis labels
+            datasets: [{
+                label: 'Net Savings',
+                data: netSavings,  // Array of net savings data
+                backgroundColor: 'rgba(147, 197, 253, 0.5)',  // Light blue shaded fill
+                borderColor: '#3B82F6',  // Blue for the main line
+                pointBackgroundColor: '#60A5FA',  // Lighter blue for data points
+                borderWidth: 2,
+                fill: true,  // Fill area under the line
+            }]
+        },
+        options: {
+            tension: 0.1, 
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Savings ($)'  // Label for the y-axis
+                    },
+                    grid: {
+                        color: '#6b7280',  // Change grid line color (gray)
+                        borderColor: '#374151', // Color for the y-axis border
+                        borderDash: [5, 5], // Dotted line pattern
+                    },
+                    min: -100,  // Set the minimum value for the Y-axis
+                    max: 1000  // Set the maximum value for the Y-axis for default zoom
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'  // Label for the x-axis
+                    },
+                    grid: {
+                        color: '#6b7280',  // Change grid line color (gray)
+                        borderColor: '#374151', // Color for the x-axis border
+                        borderDash: [5, 5], // Dotted line pattern
+                    },
+                    min: zoomMin,  // Dynamically calculated based on the current month
+                    max: zoomMax   // Dynamically calculated based on the current month
+                }
+            },
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,  // Enable panning
+                        mode: 'xy',  // Allow panning on both X and Y axes
+                        threshold: 10
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,  // Enable zooming with the mouse wheel
+                        },
+                        pinch: {
+                            enabled: true,  // Enable pinch zooming for touch devices
+                        },
+                        mode: 'xy',  // Allow zooming on both X and Y axes
+                        limits: {
+                            x: { min: 0, max: 11 },  // Limit zooming on X-axis to full year
+                            y: { min: 0, max: 2000 }  // Limit zooming on Y-axis
+                        }
+                    }
+                }
+            }
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const monthHeaders = document.querySelectorAll('.month-header');
+        const expandIncomeButton = document.getElementById('expandIncomeButton');
+        const shrinkIncomeButton = document.getElementById('shrinkIncomeButton');
+        const expandExpensesButton = document.getElementById('expandExpensesButton');
+        const shrinkExpensesButton = document.getElementById('shrinkExpensesButton');
+        const incomeContainer = document.getElementById('incomeContainer');
+        const expensesContainer = document.getElementById('expensesContainer');
+    
+        monthHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                header.classList.toggle('active');
+                const content = header.nextElementSibling;
+                if (content.style.display === 'block') {
+                    content.style.display = 'none';
+                } else {
+                    content.style.display = 'block';
+                }
+            });
+        });
+    
+        function toggleMonths(container, expandButton, shrinkButton) {
+            const hiddenMonths = container.querySelectorAll('.hidden-month');
+            const shouldExpand = expandButton.classList.contains('hidden'); // Determine if expanding or shrinking
+    
+            hiddenMonths.forEach(month => {
+                month.style.display = shouldExpand ? 'none' : 'block'; // Show or hide based on action
+            });
+    
+            expandButton.classList.toggle('hidden');
+            shrinkButton.classList.toggle('hidden');
+        }
+    
+        expandIncomeButton.addEventListener('click', () => toggleMonths(incomeContainer, expandIncomeButton, shrinkIncomeButton));
+        shrinkIncomeButton.addEventListener('click', () => toggleMonths(incomeContainer, expandIncomeButton, shrinkIncomeButton));
+        expandExpensesButton.addEventListener('click', () => toggleMonths(expensesContainer, expandExpensesButton, shrinkExpensesButton));
+        shrinkExpensesButton.addEventListener('click', () => toggleMonths(expensesContainer, expandExpensesButton, shrinkExpensesButton));
+    
+        const quarterButtons = document.querySelectorAll('.bg-gray-700');
+        quarterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Implement quarter filtering logic here
+                console.log('Quarter button clicked:', button.textContent);
+            });
+        });
+    });
+    const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+    new Chart(incomeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: capitalizedIncomeSources,
+            datasets: [{
+                data: incomeAmounts,
+                backgroundColor: ['#34D399 ', '#10B981 ', '#6EE7B7 ', '#A7F3D0 '],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins:{
+                legend:{
+                    labels:{
+                        color: 'gray',
+                        boxWidth: 10, // Adjust the width of the color box (e.g., smaller for thinner)
+                        boxHeight: 10, // Adjust the height for overall size
+                        padding: 15, 
+                        font:{
+                            size: 17
+                        }
+                    }
+
+                }
+            }
+        }
+    });
+
+    // Expenses Breakdown Chart for Current Month
+    const expensesCtx = document.getElementById('expensesChart').getContext('2d');
+    new Chart(expensesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: capitalizedExpenseCategories,
+            datasets: [{
+                data: expenseAmounts,
+                backgroundColor: ['#DC2626 ', '#EF4444', '#F87171 ','#FCA5A5 '],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins:{
+                legend:{
+                    labels:{
+                        color: 'gray',
+                        boxWidth: 9, // Adjust the width of the color box (e.g., smaller for thinner)
+                        boxHeight: 9, // Adjust the height for overall size
+                        padding: 10, 
+                        font:{
+                            size: 13
+                        }
+                    }
+
+                }
+            }
+        }
+    });
+    
+
+</script>
+{% endblock %}
