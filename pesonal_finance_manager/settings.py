@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-66@116!*f3mul0(2!n*$wt2limj!x5qm8hv749x=1lsa7j5u-z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://moneta-personal-finance-website.onrender.com']
 
 
 # Application definition
