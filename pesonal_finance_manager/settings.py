@@ -69,7 +69,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pesonal_finance_manager.wsgi.application'
-
+import os
+from dotenv import load_dotenv
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -77,11 +78,11 @@ WSGI_APPLICATION = 'pesonal_finance_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'HaRsH@0303',
-        'HOST': 'localhost',  # Or IP address of your database server
-        'PORT': '5432',        # Default PostgreSQL port
+        'NAME': os.getenv('db_name'),
+        'USER': os.getenv('db_user'),
+        'PASSWORD': os.getenv('db_password'),
+        'HOST': os.getenv('db_host') ,  # Or IP address of your database server
+        'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
     }
 }
 
@@ -130,8 +131,7 @@ STATICFILES_DIRS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-import os
-from dotenv import load_dotenv
+
 
 # Load the .env file
 load_dotenv()
