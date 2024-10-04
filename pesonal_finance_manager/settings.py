@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import dj_database_url
+
+import os
+from dotenv import load_dotenv
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-66@116!*f3mul0(2!n*$wt2limj!x5qm8hv749x=1lsa7j5u-z'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG','False').lower() == 'true'
 
-ALLOWED_HOSTS = ['https://moneta-personal-finance-website.onrender.com']
+ALLOWED_HOSTS = ["https://moneta-personal-finance-website.onrender.com"]
 
 
 # Application definition
@@ -69,8 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pesonal_finance_manager.wsgi.application'
-import os
-from dotenv import load_dotenv
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -85,6 +88,7 @@ DATABASES = {
         'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
     }
 }
+DATABASE_URL = os.getenv('DATABASE_URL')
 # postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a/moneta_3z0r
 DATABASES['default'] =dj_database_url.parse("postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a.oregon-postgres.render.com/moneta_3z0r")
 # Password validation
