@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Financial Tracker{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <div id="animated-background" class="fixed inset-0 bg-dot-pattern pointer-events-none"></div>
+    <div id="blur-effect" class="fixed w-32 h-32 bg-white opacity-20 rounded-full pointer-events-none transition-transform duration-200 ease-out" style="filter: blur(20px);"></div>
+    <div id="custom-cursor" class="fixed w-4 h-4 bg-white rounded-full pointer-events-none transition-transform duration-200 ease-out" style="transform: translate(-50%, -50%);"></div>
+    <nav class="bg-gray-800 shadow-lg relative z-10 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-2xl font-bold">Finance Tracker</a>
+            <div>
+                {% comment %} <a href="#cta" class="text-gray-300 hover:text-white mx-2">Get Started</a> {% endcomment %}
+            </div>
+            <div class="text-gray-300">
+                {% if user.is_authenticated %}
+                    {% if request.path == '/dashboard/' %}  {# Adjust this path based on your actual dashboard URL #}
+                        <a href="{% url 'home' %}" class="text-gray-300 hover:text-white mx-2">Home</a>
+                    {% endif %}
+                    <span class="mr-0">Hello, {{ user.username }}</span>
+                    <a href="{% url 'logout' %}" class="text-gray-300 hover:text-white mx-1">Logout</a>
+                    
+                    
+                    
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-300 hover:text-white mx-2">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto p-8 flex-grow relative z-10">
+        {% block content %}{% endblock %}
+    </div>
+    <footer class="bg-gray-800 text-center lg:text-left relative z-10">
+        <div class="text-gray-400 text-center p-4">
+            © 2023 Financial Tracker. All rights reserved.
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const background = document.getElementById('animated-background');
+            const blurEffect = document.getElementById('blur-effect');
+            const customCursor = document.getElementById('custom-cursor');
+            let mouseX = 0, mouseY = 0;
+            let blurX = 0, blurY = 0;
+
+            const updateBackground = () => {
+                const dotSize = 27; // Adjust as needed for spacing
+                const rows = Math.ceil(window.innerHeight / dotSize);
+                const cols = Math.ceil(window.innerWidth / dotSize);
+
+                let dots = '';
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const x = j * dotSize;
+                        const y = i * dotSize;
+                        const distance = Math.sqrt((x - mouseX) ** 2 + (y - mouseY) ** 2);
+                        const size = Math.max(2, 4 - distance / 100); // Increase the dot thickness here
+                        const opacity = Math.max(0.1, 1 - distance / 200);
+                        dots += `<div style="position:absolute;left:${x}px;top:${y}px;width:${size}px;height:${size}px;border-radius:50%;background-color:rgba(255,255,255,${opacity});"></div>`;
+                    }
+                }
+                background.innerHTML = dots;
+            };
+
+            const updateBlurEffect = () => {
+                blurX += (mouseX - blurX) * 0.1;
+                blurY += (mouseY - blurY) * 0.1;
+                blurEffect.style.transform = `translate(${blurX - 64}px, ${blurY - 64}px)`;
+                customCursor.style.transform = `translate(${mouseX - 8}px, ${mouseY - 8}px)`;
+                requestAnimationFrame(updateBlurEffect);
+            };
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                updateBackground();
+            });
+
+            updateBackground();
+            updateBlurEffect();
+            window.addEventListener('resize', updateBackground);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
