@@ -57,6 +57,7 @@ You can visit the live demo of the Moneta Personal Finance Tracker [here](https:
    ```bash
    git clone https://github.com/HydrallHarsh/Moneta-Personal-Finance-Website.git
    cd Moneta-Personal-Finance-Website
+   ```
 2.Create Virtual Environment:
    ```bash
    python -m venv venv
@@ -136,8 +137,8 @@ Moneta-Personal-Finance-Website/
 
 We welcome contributions to make Moneta even better! To contribute:
 
--Fork the repository.
--Create a new branch (git checkout -b feature-branch).
--Make your changes and commit (git commit -am 'Add new feature').
--Push the branch (git push origin feature-branch).
--Open a Pull Request.
+- Fork the repository.
+- Create a new branch (git checkout -b feature-branch).
+- Make your changes and commit (git commit -am 'Add new feature').
+- Push the branch (git push origin feature-branch).
+- Open a Pull Request.
