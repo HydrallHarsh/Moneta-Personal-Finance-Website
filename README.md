@@ -37,7 +37,7 @@ You can visit the live demo of the Moneta Personal Finance Tracker [here](https:
 - **Frontend**: HTML, CSS, JavaScript (using Django Templates), Chart.js
 - **Backend**: Django, Python
 - **Database**: PostgreSQL
-- **Deployment**: Render (or any alternative service you're using)
+- **Deployment**: Render 
 - **External Services**:
   - Email Service: Gmail SMTP
   - Random Quote API Ninjas API
