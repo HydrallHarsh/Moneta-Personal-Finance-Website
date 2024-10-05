@@ -47,7 +47,7 @@ def check_budget_exceeded(sender, instance, **kwargs):
     latest_expense = Expense.objects.filter(user=user,date__month = instance.date.month).latest('date')
     latest_expense_description = latest_expense.description
     budget = Budget.objects.filter(user=user, month__month=instance.date.month).first()
-    print(user , total_expenses, budget.amount,latest_expense,latest_expense_description)
+    
     email_body = email_body = (
         f'Hello {user.username},\n\n'
         f'You have exceeded your budget for {budget.month.strftime("%B %Y")}, 2024. Your total spending is now {total_expenses}, '
