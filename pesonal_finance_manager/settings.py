@@ -90,7 +90,7 @@ DATABASES = {
 }
 DATABASE_URL = os.getenv('DATABASE_URL')
 # postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a/moneta_3z0r
-DATABASES['default'] =dj_database_url.parse("postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a.oregon-postgres.render.com/moneta_3z0r")
+# DATABASES['default'] =dj_database_url.parse("postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a.oregon-postgres.render.com/moneta_3z0r")
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
