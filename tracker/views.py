@@ -47,7 +47,7 @@ def register(request):
             try:
                 # Send the welcome email
                 subject = 'Welcome to Moneta - Finance Tracker!'
-                message = f'Hi {user.username},\n\nThanks for registering on the website!'
+                message = f'Hi {user.username},\n\nThanks for registering on the website! We’re excited to have you on board.'
                 from_email = settings.DEFAULT_FROM_EMAIL
                 recipient_list = [user.email]
 

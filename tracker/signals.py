@@ -10,15 +10,15 @@ import requests,random
 import os
 import os
 from dotenv import load_dotenv
-@receiver(post_save, sender=User)
-def send_welcome_email(sender, instance, created, **kwargs):
-    if created:  # Only send email on user creation
-        subject = 'Welcome to Finance Tracker!'
-        message = f'Hi {instance.username},\n\nThanks for registering on Finance Tracker! We’re excited to have you on board.'
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [instance.email]
+# @receiver(post_save, sender=User)
+# def send_welcome_email(sender, instance, created, **kwargs):
+#     if created:  # Only send email on user creation
+#         subject = 'Welcome to Finance Tracker!'
+#         message = f'Hi {instance.username},\n\nThanks for registering on Finance Tracker! We’re excited to have you on board.'
+#         from_email = settings.DEFAULT_FROM_EMAIL
+#         recipient_list = [instance.email]
         
-        send_mail(subject, message, from_email, recipient_list)
+#         send_mail(subject, message, from_email, recipient_list)
 
 
 def get_quote():
