@@ -1,6 +1,6 @@
 ## Live Demo
 
-You can check out the live demo of the Personal Finance Tracker [here](https://yourapp.herokuapp.com).
+You can check out the live demo of the Moneta Personal Finance Tracker [here](https://moneta-personal-finance-website.onrender.com/).
 
 ## Features
 - Set and manage monthly budgets.
