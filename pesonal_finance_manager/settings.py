@@ -88,9 +88,9 @@ DATABASES = {
         'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
     }
 }
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.environ.get('Database_Url')
 # postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a/moneta_3z0r
-# DATABASES['default'] =dj_database_url.parse("postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a.oregon-postgres.render.com/moneta_3z0r")
+DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
