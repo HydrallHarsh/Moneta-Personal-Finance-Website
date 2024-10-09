@@ -92,7 +92,7 @@ DATABASES = {
 }
 # print(DATABASES)
 DATABASE_URL = os.environ.get('Database_Url')
-print(DATABASE_URL)
+# print(DATABASE_URL)
 DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
