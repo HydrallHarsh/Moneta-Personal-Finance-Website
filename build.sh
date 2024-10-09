@@ -1,5 +1,5 @@
 echo "Building the project"
-cd personal_finance_manager
+
 python -m pip install -r requirements.txt
 
 
