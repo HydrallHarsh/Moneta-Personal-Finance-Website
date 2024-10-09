@@ -32,8 +32,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG','False').lower() == 'true'
 
-ALLOWED_HOSTS = ["moneta-personal-finance-website.onrender.com",'.vercel.app','now.sh','localhost']
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()] 
+print(ALLOWED_HOSTS)
 
 # Application definition
 
