@@ -19,7 +19,9 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -88,7 +90,9 @@ DATABASES = {
         'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
     }
 }
-DATABASE_URL = os.getenv('Database_Url')
+# print(DATABASES)
+DATABASE_URL = os.environ.get('Database_Url')
+print(DATABASE_URL)
 DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -129,7 +133,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    os.path.join(BASE_DIR, 'static')
 ]
 
 # Default primary key field type
@@ -138,7 +142,6 @@ STATICFILES_DIRS = [
 
 
 # Load the .env file
-load_dotenv()
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
