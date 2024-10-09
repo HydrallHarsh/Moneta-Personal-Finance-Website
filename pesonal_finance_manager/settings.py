@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG','False').lower() == 'true'
 
-ALLOWED_HOSTS = ["moneta-personal-finance-website.onrender.com"]
+ALLOWED_HOSTS = ["moneta-personal-finance-website.onrender.com",'.vercel.app','now.sh','localhost']
 
 
 # Application definition
@@ -89,7 +89,7 @@ DATABASES = {
     }
 }
 DATABASE_URL = os.getenv('Database_Url')
-DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
+DATABASES['default'] =dj_database_url.config(default=os.getenv('Database_Url'))
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -127,7 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles" / "static"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
