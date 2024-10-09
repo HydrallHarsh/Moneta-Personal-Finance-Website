@@ -88,8 +88,7 @@ DATABASES = {
         'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
     }
 }
-DATABASE_URL = os.environ.get('Database_Url')
-# postgresql://bhavika:a7nmtX5gfOg1Fb6HSSnh3CvzqN2qFhRr@dpg-cs023588fa8c73e022g0-a/moneta_3z0r
+DATABASE_URL = os.getenv('Database_Url')
 DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -128,6 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles" / "static"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
