@@ -2,11 +2,10 @@
     "version": 2,
     "builds": [
         {
-            "src": "pesonal_finance_manager/personal_finance_manager/wsgi.py",
+            "src": "/pesonal_finance_manager/wsgi.py",
             "use": "@vercel/python",
             "config": {
-                "maxLambdaSize": "15mb",
-                "runtime": "python3.11.4"
+                "maxLambdaSize": "15mb"
             }
         },
         {
@@ -17,6 +16,6 @@
     ],
     "routes": [
         { "src": "/static/(.*)", "dest": "/static/$1" },
-        { "src": "/(.*)", "dest": "pesonal_finance_manager/pesonal_finance_manager/wsgi.py" }
+        { "src": "/(.*)", "dest": "/pesonal_finance_manager/wsgi.py" }
     ]
 }
