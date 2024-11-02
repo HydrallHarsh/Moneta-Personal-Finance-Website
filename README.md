@@ -28,7 +28,7 @@ Moneta is a web-based personal finance manager that helps users track their inco
 ---
 
 ## Demo
-You can visit the live demo of the Moneta Personal Finance Tracker [here](https://moneta-personal-finance-website.onrender.com/).
+You can visit the live demo of the Moneta Personal Finance Tracker [here](https://moneta-personal-finance-website.vercel.app/).
 
 ---
 
