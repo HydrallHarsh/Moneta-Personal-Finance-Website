@@ -79,10 +79,10 @@ You can install and run Moneta using either Docker (recommended) or traditional 
 3. Build and start the services:
    ```bash
    # For production with nginx
-   docker-compose up --build -d
+   docker compose up --build -d
    
    # Or for development (without nginx)
-   docker-compose -f docker-compose.dev.yml up --build
+   docker compose -f docker-compose.dev.yml up --build
    ```
 
 4. The application will be available at:

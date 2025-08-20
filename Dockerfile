@@ -16,16 +16,20 @@ RUN apt-get update \
         build-essential \
         libpq-dev \
         curl \
-        nodejs \
-        npm \
+        ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Update CA certificates to fix SSL issues
+RUN update-ca-certificates
 
-# Install Node.js dependencies
+# Copy requirements first for better caching
+COPY requirements.txt /app/
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir -r requirements.txt
+
+# Copy package.json for Node.js dependencies
 COPY package*.json /app/
 RUN npm install
 
@@ -35,20 +39,9 @@ COPY . /app/
 # Create staticfiles directory
 RUN mkdir -p /app/staticfiles
 
-# Build CSS with Tailwind
-RUN npm run build:css || echo "CSS build completed or skipped"
-
-# Collect static files
-RUN python manage.py collectstatic --noinput --clear || echo "Static files collection will be done at runtime"
-
 # Create entrypoint script
 COPY docker-entrypoint.sh /app/
-COPY healthcheck.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh /app/healthcheck.sh
-
-# Add health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD /app/healthcheck.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Expose port
 EXPOSE 8000
@@ -57,4 +50,4 @@ EXPOSE 8000
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 # Default command
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "pesonal_finance_manager.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
