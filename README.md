@@ -34,10 +34,12 @@ You can visit the live demo of the Moneta Personal Finance Tracker [here](https:
 
 ## Technologies Used
 
-- **Frontend**: HTML, CSS, JavaScript (using Django Templates), Chart.js
+- **Frontend**: HTML, CSS, JavaScript (using Django Templates), Chart.js, Tailwind CSS
 - **Backend**: Django, Python
 - **Database**: PostgreSQL
-- **Deployment**: Render 
+- **Containerization**: Docker, Docker Compose
+- **Web Server**: Nginx (for production)
+- **Deployment**: Render, Docker
 - **External Services**:
   - Email Service: Gmail SMTP
   - Random Quote API Ninjas API
@@ -46,43 +48,127 @@ You can visit the live demo of the Moneta Personal Finance Tracker [here](https:
 
 ## Installation
 
-### Prerequisites
-- **Python 3.8+** installed on your machine.
-- **PostgreSQL** installed and running.
-- Create a Gmail account and generate an **App Password** for SMTP (for email alerts).
+You can install and run Moneta using either Docker (recommended) or traditional Python setup.
 
-### Steps
+### Option 1: Docker Installation (Recommended)
+
+#### Prerequisites
+- **Docker** and **Docker Compose** installed on your machine
+- Create a Gmail account and generate an **App Password** for SMTP (for email alerts)
+
+#### Steps
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/HydrallHarsh/Moneta-Personal-Finance-Website.git
    cd Moneta-Personal-Finance-Website
    ```
-2.Create Virtual Environment:
+
+2. Copy the environment file and configure it:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit the `.env` file with your settings:
+   ```bash
+   # Update these values
+   SECRET_KEY=your-secret-key-here
+   EMAIL_HOST_USER=your-gmail-username@gmail.com
+   EMAIL_HOST_PASSWORD=your-gmail-app-password
+   ```
+
+3. Build and start the services:
+   ```bash
+   # For production with nginx
+   docker-compose up --build -d
+   
+   # Or for development (without nginx)
+   docker-compose -f docker-compose.dev.yml up --build
+   ```
+
+4. The application will be available at:
+   - **Production**: http://localhost (port 80)
+   - **Development**: http://localhost:8000
+
+5. Access the admin panel:
+   - URL: http://localhost/admin (or http://localhost:8000/admin for dev)
+   - Default credentials: `admin` / `admin123`
+
+#### Docker Commands
+
+You can use the provided Makefile for common operations:
+
+```bash
+# Start services
+make up          # Production mode with nginx
+make up-dev      # Development mode
+
+# View logs
+make logs        # All services
+make logs-web    # Web service only
+
+# Database operations
+make migrate     # Run migrations
+make createsuperuser  # Create admin user
+
+# Utilities
+make shell       # Open shell in web container
+make down        # Stop all services
+make clean       # Remove all containers and volumes
+```
+
+### Option 2: Traditional Python Installation
+
+#### Prerequisites
+- **Python 3.8+** installed on your machine
+- **PostgreSQL** installed and running
+- **Node.js** and **npm** for frontend assets
+- Create a Gmail account and generate an **App Password** for SMTP (for email alerts)
+
+#### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/HydrallHarsh/Moneta-Personal-Finance-Website.git
+   cd Moneta-Personal-Finance-Website
+   ```
+
+2. Create Virtual Environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-  ```
-3.Install Dependencies:
-  ```bash
-  pip install -r requirements.txt
-  ```
-4.Set up your PostgreSQL database and environment variables:
-  ```bash
-  DEBUG=True
-  SECRET_KEY=your-secret-key
-  DATABASE_URL=your-database-url
-  EMAIL_HOST_USER=your-gmail-username
-  EMAIL_HOST_PASSWORD=your-app-password
-  ```
-5.Run Migrations
-  ```bash
-  python manage.py migrate
-  ```
-6.Start Django Devlopment Server
-  ```bash
-  python manage.py runserver
-  ```
+   ```
+
+3. Install Dependencies:
+   ```bash
+   pip install -r requirements.txt
+   npm install
+   ```
+
+4. Set up your PostgreSQL database and environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit the `.env` file with your database and email settings.
+
+5. Build frontend assets:
+   ```bash
+   npm run build:css
+   ```
+
+6. Run Migrations:
+   ```bash
+   python manage.py migrate
+   ```
+
+7. Collect static files:
+   ```bash
+   python manage.py collectstatic
+   ```
+
+8. Start Django Development Server:
+   ```bash
+   python manage.py runserver
+   ```
 ---
 
 ## Usage
@@ -113,24 +199,38 @@ You can visit the live demo of the Moneta Personal Finance Tracker [here](https:
 ```bash
 Moneta-Personal-Finance-Website/
 │
-├── personal_finance_manager/
-│   ├── personal_finance_manager/
-│   │   ├── __init__.py
-│   │   ├── asgi.py
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── src/
-│   ├── static/
-│   └── tracker/
-│       ├── templates/
-│       ├── migrations/
-│       ├── admin.py
-│       ├── apps.py
-│       ├── models.py
-│       ├── views.py
-│       └── ...
-└── venv/
+├── pesonal_finance_manager/          # Django project directory
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── tracker/                          # Main Django app
+│   ├── templates/
+│   ├── migrations/
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── views.py
+│   └── ...
+├── src/                              # Source files
+├── static/                           # Static files
+├── staticfiles_build/                # Built static files
+├── Docker Configuration/
+│   ├── Dockerfile                    # Docker image definition
+│   ├── docker-compose.yml            # Production Docker setup
+│   ├── docker-compose.dev.yml        # Development Docker setup
+│   ├── docker-entrypoint.sh          # Container startup script
+│   ├── nginx.conf                    # Nginx configuration
+│   └── .dockerignore                 # Docker ignore file
+├── Configuration Files/
+│   ├── .env.example                  # Environment variables template
+│   ├── requirements.txt              # Python dependencies
+│   ├── package.json                  # Node.js dependencies
+│   ├── tailwind.config.js            # Tailwind CSS config
+│   └── Makefile                      # Docker helper commands
+├── manage.py                         # Django management script
+└── build.sh                          # Build script
 ```
 ---
 ## Contributing

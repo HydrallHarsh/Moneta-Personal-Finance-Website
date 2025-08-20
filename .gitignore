@@ -2,3 +2,14 @@ venv/
 .env
 node_modules/
 .vercel
+
+# Docker
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite3
+
+# Static files
+staticfiles/
