@@ -1,4 +1,5 @@
 # Moneta - Personal Finance Manager
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HydrallHarsh/Moneta-Personal-Finance-Website)
 
 Moneta is a web-based personal finance manager that helps users track their income, expenses, and savings. It includes features for setting monthly budgets, receiving alerts when exceeding budgets, tracking savings goals, and exporting transactions in CSV format. Built using Django and PostgreSQL, it offers a simple, user-friendly interface for managing your finances with detailed visualizations.
 
