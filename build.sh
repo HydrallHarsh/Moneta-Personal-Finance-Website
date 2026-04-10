@@ -20,3 +20,6 @@ fi
 
 echo "Collect static files"
 "$PYTHON_BIN" manage.py collectstatic --noinput --clear
+
+# Avoid shipping build-time virtualenv in function bundle.
+rm -rf .vercel_venv

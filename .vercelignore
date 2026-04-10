@@ -1,0 +1,19 @@
+# Python environments
+venv/
+.venv/
+.vercel_venv/
+
+# Node dependencies
+node_modules/
+
+# VCS and local editor files
+.git/
+.vscode/
+
+# Python cache/build artifacts
+**/__pycache__/
+*.py[cod]
+
+# Local-only files
+.env
+db.sqlite3
