@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['personal_finance_manager/tracker/templates/*.html',
+  content: [
+    './tracker/templates/**/*.html',
+    './templates/**/*.html',
   ],
   theme: {
     extend: {},
