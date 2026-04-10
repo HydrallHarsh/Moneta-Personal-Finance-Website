@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import dj_database_url
+from urllib.parse import urlparse, parse_qsl
 
 import os
 from dotenv import load_dotenv
@@ -31,7 +32,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG','False').lower() == 'true'
-print(DEBUG)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()] 
 # print(ALLOWED_HOSTS)
@@ -81,20 +81,19 @@ WSGI_APPLICATION = 'pesonal_finance_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('db_name'),
-        'USER': os.getenv('db_user'),
-        'PASSWORD': os.getenv('db_password'),
-        'HOST': os.getenv('db_host') ,  # Or IP address of your database server
-        'PORT': os.getenv('db_port'),        # Default PostgreSQL port,
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
     }
 }
-# print(DATABASES)
-DATABASE_URL = os.environ.get('Database_Url')
-# print(DATABASE_URL)
-DATABASES['default'] =dj_database_url.parse(DATABASE_URL)
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

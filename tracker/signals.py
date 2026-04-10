@@ -8,8 +8,9 @@ from .models import Expense, Budget
 from django.db import models
 import requests,random
 import os
-import os
+import json
 from dotenv import load_dotenv
+load_dotenv()
 # @receiver(post_save, sender=User)
 # def send_welcome_email(sender, instance, created, **kwargs):
 #     if created:  # Only send email on user creation
@@ -22,17 +23,27 @@ from dotenv import load_dotenv
 
 
 def get_quote():
-    # Request a quote from the API
-    import requests
-    category = 'money'  # Change this to 'saving' or 'money' if you want specific quotes
-    api_url = 'https://api.api-ninjas.com/v1/quotes?category={}'.format(category)
-    
-    response = requests.get(api_url, headers={'X-Api-Key': os.getenv("API_KEY")})
-    
+    response = requests.post(
+    url="https://openrouter.ai/api/v1/chat/completions",
+    headers={
+        "Authorization": "Bearer " + os.getenv("OPENROUTER_API_KEY"),
+        "Content-Type": "application/json",
+    },
+    data=json.dumps({
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "messages": [
+            {
+            "role": "user",
+            "content": "You are acting as a financial advisor. Provide a motivational quote related to saving money and budgeting to encourage users to stay on track with their financial goals. Your message should be concise, inspiring, and relevant to personal finance management. Please provide only the quote without any additional commentary or explanation. Your message will be sent to users who have exceeded their budget to help motivate them to stay on track with their financial goals.Add noting else except the quote in your response.Make sure the quote is concise and inspiring, and directly related to saving money and budgeting.Try to make it unique and not a commonly known quote. Avoid using quotes from famous individuals or generic sayings. Instead, create an original quote that resonates with the challenges and rewards of managing personal finances effectively. You can make it a bit humorous or light-hearted to help users feel encouraged rather than discouraged about their financial situation. Remember, the goal is to motivate users to take positive action towards their financial goals, so the quote should be uplifting and empowering."
+            }
+        ],
+        "reasoning": {"enabled": True}
+        })
+    )
     if response.status_code == requests.codes.ok:
         data = response.json()  # Extract JSON data from the response
-        if data:  # Check if there are any quotes returned
-            return data[0]['quote']  # Return the first quote
+        if data['choices']:  # Check if there are any quotes returned
+            return data['choices'][0]['message']['content']  # Return the first quote
         else:
             return "Stay motivated with your savings!"  # Fallback message if no quote is found
     else:
