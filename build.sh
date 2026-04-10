@@ -11,8 +11,12 @@ PYTHON_BIN=".vercel_venv/bin/python"
 "$PYTHON_BIN" -m pip install --upgrade pip
 "$PYTHON_BIN" -m pip install -r requirements.txt
 
-echo "Running migrations"
-"$PYTHON_BIN" manage.py migrate
+if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
+	echo "Running migrations"
+	"$PYTHON_BIN" manage.py migrate
+else
+	echo "Skipping migrations (set RUN_MIGRATIONS=1 to enable)"
+fi
 
 echo "Collect static files"
 "$PYTHON_BIN" manage.py collectstatic --noinput --clear

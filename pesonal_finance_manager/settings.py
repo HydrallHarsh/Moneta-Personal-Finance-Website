@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import dj_database_url
-from urllib.parse import urlparse, parse_qsl
 
 import os
 from dotenv import load_dotenv
@@ -81,18 +80,13 @@ WSGI_APPLICATION = 'pesonal_finance_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+DATABASE_URL = (os.getenv('DATABASE_URL') or '').strip().strip('"\'')
+
+if not DATABASE_URL:
+    raise ValueError('DATABASE_URL is not set')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPostgres.path.replace('/', ''),
-        'USER': tmpPostgres.username,
-        'PASSWORD': tmpPostgres.password,
-        'HOST': tmpPostgres.hostname,
-        'PORT': 5432,
-        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
-    }
+    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
